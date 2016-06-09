@@ -17,26 +17,18 @@ class App extends Component{
     }
 
     handleStoreChange(){
-        console.log("change")
         this.setState(bankBalanceStore.getState());
     }
 
     deposit(){
-        console.log("deposit")
         BankActions.depositIntoAccount(Number(this.refs.cantidad.value));
     }
 
     withdraw(){
         BankActions.withdrawFromAccount(Number(this.refs.cantidad.value));
     }
-    click(evt){
-        evt.stopPropagation();
-        evt.preventDefault();
-        this.counter += 1;
-        console.log("---> CLick", this.counter);
-    }
+
     render(){
-        console.log("render")
         return(
             <div className="container">
                 <div className="row">
@@ -48,15 +40,30 @@ class App extends Component{
                             <div className="panel-body">
                                 <div className="row">
                                     <div className="col-xs-12">
-                                        <input type="text" className="form-control" placeholder="Cantidad" ref="cantidad"/>
+                                        <input type="text" 
+                                               className="form-control" 
+                                               placeholder="Cantidad" 
+                                               ref="cantidad"
+                                               onChange={()=>{console.log("change")}}/>
                                     </div>                                    
                                 </div>
                                 <hr/>
                                 <div className="row">
                                     <div className="col-xs-12">
                                         <div className="btn-group" role="group">
-                                            <button type="button" className="btn btn-danger" onClick={this.withdraw.bind(this)}>Retirar</button>
-                                            <button type="button" className="btn btn-success" onClick={this.click.bind(this)}>Depositar</button>
+
+                                            <button type="button" 
+                                                    className="btn btn-danger" 
+                                                    onClick={this.withdraw.bind(this)}>
+                                                Retirar
+                                            </button>
+
+                                            <button type="button" 
+                                                    className="btn btn-success" 
+                                                    onClick={this.deposit.bind(this)}>
+                                                Depositar
+                                            </button>
+
                                         </div>
                                     </div>
                                 </div>

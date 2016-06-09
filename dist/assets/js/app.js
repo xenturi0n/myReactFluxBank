@@ -20392,13 +20392,11 @@ var App = function (_Component) {
     }, {
         key: 'handleStoreChange',
         value: function handleStoreChange() {
-            console.log("change");
             this.setState(_BankBalanceStore2.default.getState());
         }
     }, {
         key: 'deposit',
         value: function deposit() {
-            console.log("deposit");
             BankActions.depositIntoAccount(Number(this.refs.cantidad.value));
         }
     }, {
@@ -20407,17 +20405,8 @@ var App = function (_Component) {
             BankActions.withdrawFromAccount(Number(this.refs.cantidad.value));
         }
     }, {
-        key: 'click',
-        value: function click(evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            this.counter += 1;
-            console.log("---> CLick", this.counter);
-        }
-    }, {
         key: 'render',
         value: function render() {
-            console.log("render");
             return _react2.default.createElement(
                 'div',
                 { className: 'container' },
@@ -20449,7 +20438,13 @@ var App = function (_Component) {
                                     _react2.default.createElement(
                                         'div',
                                         { className: 'col-xs-12' },
-                                        _react2.default.createElement('input', { type: 'text', className: 'form-control', placeholder: 'Cantidad', ref: 'cantidad' })
+                                        _react2.default.createElement('input', { type: 'text',
+                                            className: 'form-control',
+                                            placeholder: 'Cantidad',
+                                            ref: 'cantidad',
+                                            onChange: function onChange() {
+                                                console.log("change");
+                                            } })
                                     )
                                 ),
                                 _react2.default.createElement('hr', null),
@@ -20464,12 +20459,16 @@ var App = function (_Component) {
                                             { className: 'btn-group', role: 'group' },
                                             _react2.default.createElement(
                                                 'button',
-                                                { type: 'button', className: 'btn btn-danger', onClick: this.withdraw.bind(this) },
+                                                { type: 'button',
+                                                    className: 'btn btn-danger',
+                                                    onClick: this.withdraw.bind(this) },
                                                 'Retirar'
                                             ),
                                             _react2.default.createElement(
                                                 'button',
-                                                { type: 'button', className: 'btn btn-success', onClick: this.click.bind(this) },
+                                                { type: 'button',
+                                                    className: 'btn btn-success',
+                                                    onClick: this.deposit.bind(this) },
                                                 'Depositar'
                                             )
                                         )
