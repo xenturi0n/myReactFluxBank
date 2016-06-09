@@ -20,12 +20,16 @@ class App extends Component{
         this.setState(bankBalanceStore.getState());
     }
 
-    deposit(){
+    handleDepositClick(){
         BankActions.depositIntoAccount(Number(this.refs.cantidad.value));
     }
 
-    withdraw(){
+    handleWithdraw(){
         BankActions.withdrawFromAccount(Number(this.refs.cantidad.value));
+    }
+
+    handleInputAmmountChange(e){
+        BankActions.inputAmmountChange(e.target.value);
     }
 
     render(){
@@ -40,11 +44,19 @@ class App extends Component{
                             <div className="panel-body">
                                 <div className="row">
                                     <div className="col-xs-12">
+                                        {
+                                        this.state.inputAmmountIsValid ? null : 
+                                        <div className="alert alert-danger" role="alert">
+                                            <span className="glyphicon glyphicon-exclamation-sign"></span>
+                                            &nbsp;&nbsp;{`${this.state.inputAmmountValidationMessage}`}
+                                        </div>
+                                        }
                                         <input type="text" 
                                                className="form-control" 
                                                placeholder="Cantidad" 
                                                ref="cantidad"
-                                               onChange={()=>{console.log("change")}}/>
+                                               name="cantidad"
+                                               onChange={this.handleInputAmmountChange.bind(this)}/>
                                     </div>                                    
                                 </div>
                                 <hr/>
@@ -54,13 +66,13 @@ class App extends Component{
 
                                             <button type="button" 
                                                     className="btn btn-danger" 
-                                                    onClick={this.withdraw.bind(this)}>
+                                                    onClick={this.handleWithdraw.bind(this)}>
                                                 Retirar
                                             </button>
 
                                             <button type="button" 
                                                     className="btn btn-success" 
-                                                    onClick={this.deposit.bind(this)}>
+                                                    onClick={this.handleDepositClick.bind(this)}>
                                                 Depositar
                                             </button>
 

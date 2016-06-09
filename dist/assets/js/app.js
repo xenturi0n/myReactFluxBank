@@ -20395,14 +20395,19 @@ var App = function (_Component) {
             this.setState(_BankBalanceStore2.default.getState());
         }
     }, {
-        key: 'deposit',
-        value: function deposit() {
+        key: 'handleDepositClick',
+        value: function handleDepositClick() {
             BankActions.depositIntoAccount(Number(this.refs.cantidad.value));
         }
     }, {
-        key: 'withdraw',
-        value: function withdraw() {
+        key: 'handleWithdraw',
+        value: function handleWithdraw() {
             BankActions.withdrawFromAccount(Number(this.refs.cantidad.value));
+        }
+    }, {
+        key: 'handleInputAmmountChange',
+        value: function handleInputAmmountChange(e) {
+            BankActions.inputAmmountChange(e.target.value);
         }
     }, {
         key: 'render',
@@ -20438,13 +20443,19 @@ var App = function (_Component) {
                                     _react2.default.createElement(
                                         'div',
                                         { className: 'col-xs-12' },
+                                        this.state.inputAmmountIsValid ? null : _react2.default.createElement(
+                                            'div',
+                                            { className: 'alert alert-danger', role: 'alert' },
+                                            _react2.default.createElement('span', { className: 'glyphicon glyphicon-exclamation-sign' }),
+                                            '  ',
+                                            '' + this.state.inputAmmountValidationMessage
+                                        ),
                                         _react2.default.createElement('input', { type: 'text',
                                             className: 'form-control',
                                             placeholder: 'Cantidad',
                                             ref: 'cantidad',
-                                            onChange: function onChange() {
-                                                console.log("change");
-                                            } })
+                                            name: 'cantidad',
+                                            onChange: this.handleInputAmmountChange.bind(this) })
                                     )
                                 ),
                                 _react2.default.createElement('hr', null),
@@ -20461,14 +20472,14 @@ var App = function (_Component) {
                                                 'button',
                                                 { type: 'button',
                                                     className: 'btn btn-danger',
-                                                    onClick: this.withdraw.bind(this) },
+                                                    onClick: this.handleWithdraw.bind(this) },
                                                 'Retirar'
                                             ),
                                             _react2.default.createElement(
                                                 'button',
                                                 { type: 'button',
                                                     className: 'btn btn-success',
-                                                    onClick: this.deposit.bind(this) },
+                                                    onClick: this.handleDepositClick.bind(this) },
                                                 'Depositar'
                                             )
                                         )
@@ -20539,6 +20550,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.createAccount = createAccount;
 exports.depositIntoAccount = depositIntoAccount;
 exports.withdrawFromAccount = withdrawFromAccount;
+exports.inputAmmountChange = inputAmmountChange;
 
 var _AppDispatcher = require('./AppDispatcher.js');
 
@@ -20567,6 +20579,13 @@ function depositIntoAccount(ammount) {
 function withdrawFromAccount(ammount) {
     _AppDispatcher2.default.dispatch({
         type: _BankConstants2.default.WITHDREW_FROM_ACCOUNT,
+        ammount: ammount
+    });
+}
+
+function inputAmmountChange(ammount) {
+    _AppDispatcher2.default.dispatch({
+        type: _BankConstants2.default.INPUT_AMMOUNT_CHANGED,
         ammount: ammount
     });
 }
@@ -20606,31 +20625,72 @@ var BankBalanceStore = function (_EventEmitter) {
 
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BankBalanceStore).call(this));
 
-        _this.balance = 0;
+        _this.state = {
+            balance: 0,
+            inputAmmountValue: '',
+            inputAmmountValidationMessage: '',
+            inputAmmountIsValid: true
+        };
         return _this;
     }
 
     _createClass(BankBalanceStore, [{
         key: 'getState',
         value: function getState() {
-            return { balance: this.balance };
+            return this.state;
+        }
+    }, {
+        key: 'validateInputAmmount',
+        value: function validateInputAmmount(ammount) {
+            if (isNaN(ammount)) {
+                return false;
+            } else {
+                return true;
+            }
         }
     }, {
         key: 'handleActions',
         value: function handleActions(action) {
+            var valid = undefined;
             switch (action.type) {
                 case _BankConstants2.default.CREATED_ACCOUNT:
-                    this.balance = 0;
+                    this.state.balance = 0;
                     this.emit('change');
                     break;
 
                 case _BankConstants2.default.DEPOSITED_INTO_ACCOUNT:
-                    this.balance = this.balance + action.ammount;
-                    this.emit('change');
+                    if (this.validateInputAmmount(this.state.inputAmmountValue)) {
+                        this.state.inputAmmountValidationMessage = "";
+                        this.state.inputAmmountIsValid = true;
+                        this.state.balance = Number(this.state.balance) + Number(this.state.inputAmmountValue);
+                        this.emit('change');
+                    }
                     break;
 
                 case _BankConstants2.default.WITHDREW_FROM_ACCOUNT:
-                    this.balance = this.balance - action.ammount;
+                    valid = this.validateInputAmmount(this.state.inputAmmountValue);
+
+                    if (valid) {
+                        if (Number(this.state.balance) - Number(this.state.inputAmmountValue) < 0) {
+                            this.state.inputAmmountValidationMessage = "El saldo es insuficiente para retirar esta cantidad";
+                            this.state.inputAmmountIsValid = false;
+                            this.emit('change');
+                        } else {
+                            this.state.inputAmmountValidationMessage = "";
+                            this.state.inputAmmountIsValid = true;
+                            this.state.balance = Number(this.state.balance) - Number(this.state.inputAmmountValue);
+                            this.emit('change');
+                        }
+                    }
+                    break;
+
+                case _BankConstants2.default.INPUT_AMMOUNT_CHANGED:
+                    this.state.inputAmmountValue = Number(action.ammount);
+
+                    valid = this.validateInputAmmount(Number(action.ammount));
+                    this.state.inputAmmountValidationMessage = valid ? '' : "Debes introducir un numero valido";
+                    this.state.inputAmmountIsValid = valid ? true : false;
+
                     this.emit('change');
                     break;
             }
@@ -20654,7 +20714,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = {
     CREATED_ACCOUNT: 'created account',
     WITHDREW_FROM_ACCOUNT: 'withdrew from account',
-    DEPOSITED_INTO_ACCOUNT: 'deposited into account'
+    DEPOSITED_INTO_ACCOUNT: 'deposited into account',
+    INPUT_AMMOUNT_CHANGED: 'input ammount changed'
 };
 
 },{}],177:[function(require,module,exports){

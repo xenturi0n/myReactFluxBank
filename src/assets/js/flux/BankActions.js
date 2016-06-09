@@ -23,4 +23,9 @@ export function withdrawFromAccount(ammount){
     });
 }
 
-
+export function inputAmmountChange(ammount){
+    AppDispatcher.dispatch({
+        type: BankConstants.INPUT_AMMOUNT_CHANGED,
+        ammount: ammount
+    });
+}
